@@ -1,0 +1,6 @@
+# Ignore the original, unoptimized media to save space on GitHub
+media/
+
+# Ignore system files
+.DS_Store
+*.DS_Store
