@@ -18,7 +18,7 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bitcount+Prop+Single:wght@400;500;600&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #050505;
@@ -241,6 +241,49 @@
             filter: brightness(0.8);
         }
 
+        .bottom-portfolio-cta {
+            margin-top: 1rem;
+            padding: 2rem 1rem 1rem;
+            text-align: center;
+        }
+
+        .bottom-portfolio-cta p {
+            font-family: 'Bitcount Prop Single', 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 1.02rem;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+            line-height: 1.45;
+            color: rgba(241, 241, 241, 0.78);
+            margin-bottom: 1rem;
+        }
+
+        .portfolio-pill {
+            font-family: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.7rem 1.4rem;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            color: #f8f8f8;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+            box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+        }
+
+        .portfolio-pill:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.24);
+        }
+
         /* Lightbox */
         .lightbox {
             position: fixed;
@@ -390,6 +433,17 @@
     <section class="gallery-container" id="gallery">
         <div class="masonry">
             <!-- Items injected by JS -->
+        </div>
+        <div class="bottom-portfolio-cta">
+            <p>If you enjoyed these photos and want to know more about my professional journey:</p>
+            <a
+                id="portfolio-pill"
+                class="portfolio-pill"
+                href="https://naveens-portfolio-three.vercel.app/"
+                aria-label="Open professional portfolio"
+            >
+                Portfolio
+            </a>
         </div>
     </section>
 
@@ -574,6 +628,7 @@
         const lightboxClose = document.getElementById('lightbox-close');
         const lightboxPrev = document.getElementById('lightbox-prev');
         const lightboxNext = document.getElementById('lightbox-next');
+        const portfolioPill = document.getElementById('portfolio-pill');
 
         // Populate Gallery
         images.forEach((src, index) => {
@@ -663,6 +718,39 @@
                 header.style.background = 'rgba(255, 255, 255, 0.05)';
                 header.style.backdropFilter = 'blur(25px) saturate(200%)';
             }
+        });
+
+        // Track clicks on bottom portfolio CTA before redirecting
+        portfolioPill.addEventListener('click', (event) => {
+            event.preventDefault();
+            const destination = portfolioPill.href;
+
+            const navigate = () => {
+                window.location.href = destination;
+            };
+
+            if (typeof gtag === 'function') {
+                let hasNavigated = false;
+                const safeNavigate = () => {
+                    if (hasNavigated) return;
+                    hasNavigated = true;
+                    navigate();
+                };
+
+                gtag('event', 'navigate_to_portfolio', {
+                    'event_category': 'Navigation',
+                    'event_label': 'Bottom Portfolio Pill',
+                    'destination_url': destination,
+                    'link_text': portfolioPill.textContent.trim(),
+                    'transport_type': 'beacon',
+                    'event_callback': safeNavigate
+                });
+
+                setTimeout(safeNavigate, 700);
+                return;
+            }
+
+            navigate();
         });
     </script>
 </body>
