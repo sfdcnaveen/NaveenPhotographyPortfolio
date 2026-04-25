@@ -6,6 +6,16 @@
     <title>Naveen | Mobile Photography</title>
     <meta name="description" content="A curated collection of mobile photography by Naveen.">
     <link rel="icon" type="image/png" href="favicon.png">
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XQYXL565VH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-XQYXL565VH');
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
@@ -593,6 +603,16 @@
                 currentIndex = index;
             }
             lightboxImg.src = images[currentIndex];
+
+            // Track specific image views in Google Analytics
+            if (typeof gtag === 'function') {
+                const fileName = images[currentIndex].split('/').pop();
+                gtag('event', 'view_image', {
+                    'event_category': 'Gallery',
+                    'event_label': fileName,
+                    'image_name': fileName
+                });
+            }
         }
 
         lightboxPrev.addEventListener('click', (e) => {
