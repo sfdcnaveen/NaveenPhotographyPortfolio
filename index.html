@@ -284,6 +284,136 @@
             border-color: rgba(255, 255, 255, 0.24);
         }
 
+        /* Heart Particle Animation */
+        .heart-particle-container {
+            position: fixed;
+            pointer-events: none;
+            z-index: 10000;
+            transform: translate(-50%, -50%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .heart-particle-container svg {
+            width: 80px;
+            height: 80px;
+            fill: #ff3b30;
+            filter: drop-shadow(0 5px 15px rgba(255,59,48,0.4));
+            animation: popHeart 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes popHeart {
+            0% { transform: scale(0); opacity: 0; }
+            15% { transform: scale(1.2); opacity: 1; }
+            30% { transform: scale(1); opacity: 1; }
+            80% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        .particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: #ff3b30;
+            border-radius: 50%;
+            opacity: 0;
+        }
+        @keyframes shootParticle {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+        }
+
+        /* Onboarding */
+        .onboarding-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 5000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .onboarding-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .onboarding-modal {
+            background: rgba(25, 25, 25, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            max-width: 90%;
+            width: 320px;
+            transform: translateY(20px);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .onboarding-overlay.active .onboarding-modal {
+            transform: translateY(0);
+        }
+
+        .onboarding-modal h2 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #fff 0%, #aaa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .onboarding-step {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            color: #ddd;
+            text-align: left;
+        }
+
+        .onboarding-step .icon {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            color: #fff;
+        }
+        
+        .onboarding-step:nth-child(3) .icon {
+            color: #ff3b30;
+            fill: rgba(255, 59, 48, 0.2);
+        }
+
+        .onboarding-btn {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: transform 0.2s ease, background 0.2s ease;
+            width: 100%;
+        }
+
+        .onboarding-btn:hover {
+            transform: scale(1.05);
+            background: #f0f0f0;
+        }
+
+        .onboarding-btn:active {
+            transform: scale(0.95);
+        }
+
         /* Lightbox */
         .lightbox {
             position: fixed;
@@ -452,6 +582,22 @@
         <div class="lightbox-nav lightbox-prev" id="lightbox-prev">&#10094;</div>
         <img src="" alt="Enlarged Photo" id="lightbox-img">
         <div class="lightbox-nav lightbox-next" id="lightbox-next">&#10095;</div>
+    </div>
+
+    <!-- Onboarding Modal -->
+    <div class="onboarding-overlay" id="onboarding-overlay">
+        <div class="onboarding-modal">
+            <h2>Welcome to the Gallery</h2>
+            <div class="onboarding-step">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                <span><strong>Single Tap</strong> to View</span>
+            </div>
+            <div class="onboarding-step">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                <span><strong>Double Tap</strong> to Like</span>
+            </div>
+            <button class="onboarding-btn" id="onboarding-close">Got it</button>
+        </div>
     </div>
 
     <footer>
@@ -783,6 +929,73 @@
         const lightboxNext = document.getElementById('lightbox-next');
         const portfolioPill = document.getElementById('portfolio-pill');
 
+        // Utility for Double Tap / Click
+        function addDoubleClickListener(element, onSingle, onDouble) {
+            let lastTap = 0;
+            let timer = null;
+            element.addEventListener('click', (e) => {
+                const currentTime = new Date().getTime();
+                const tapLength = currentTime - lastTap;
+                clearTimeout(timer);
+                if (tapLength < 300 && tapLength > 0) {
+                    onDouble(e);
+                    lastTap = 0;
+                } else {
+                    timer = setTimeout(() => {
+                        onSingle(e);
+                    }, 300);
+                    lastTap = currentTime;
+                }
+            });
+        }
+
+        // Like handling function
+        function handleLikeAction(src, targetElement) {
+            const isLiked = localStorage.getItem(`liked_${src}`) === 'true';
+            if (isLiked) {
+                localStorage.removeItem(`liked_${src}`);
+            } else {
+                localStorage.setItem(`liked_${src}`, 'true');
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+                if (typeof gtag === 'function') {
+                    const fileName = src.split('/').pop();
+                    gtag('event', 'like_image', {
+                        'event_category': 'Engagement',
+                        'event_label': fileName,
+                        'image_name': fileName
+                    });
+                }
+            }
+            
+            // Create particle animation at the center of the clicked image
+            const rect = targetElement.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            
+            const container = document.createElement('div');
+            container.className = 'heart-particle-container';
+            container.style.left = x + 'px';
+            container.style.top = y + 'px';
+            
+            container.innerHTML = '<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>';
+            
+            for (let i = 0; i < 8; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                const angle = (i * 45) * (Math.PI / 180);
+                const distance = 50 + Math.random() * 30;
+                p.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+                p.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+                p.style.animation = `shootParticle 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards`;
+                container.appendChild(p);
+            }
+            
+            document.body.appendChild(container);
+            setTimeout(() => container.remove(), 1000);
+        }
+
         // Populate Gallery
         images.forEach((src, index) => {
             const item = document.createElement('div');
@@ -792,12 +1005,20 @@
                 <img src="${src}" alt="Photography ${index + 1}" loading="lazy">
             `;
             
-            item.addEventListener('click', () => {
-                currentIndex = index;
-                showImage(currentIndex);
-                lightbox.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            });
+            addDoubleClickListener(item, 
+                // Single click
+                () => {
+                    currentIndex = index;
+                    showImage(currentIndex);
+                    lightbox.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                },
+                // Double click
+                (e) => {
+                    e.preventDefault();
+                    handleLikeAction(src, item);
+                }
+            );
 
             masonry.appendChild(item);
         });
@@ -823,6 +1044,16 @@
             }
         }
 
+        // Add Double click to Lightbox Image itself
+        addDoubleClickListener(lightboxImg, 
+            (e) => { e.stopPropagation(); }, // do nothing on single click, or could close lightbox
+            (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleLikeAction(images[currentIndex], lightboxImg);
+            }
+        );
+
         lightboxPrev.addEventListener('click', (e) => {
             e.stopPropagation();
             showImage(currentIndex - 1);
@@ -845,6 +1076,8 @@
                 document.body.style.overflow = 'auto';
             }
         });
+
+        // Removed Lightbox Like Button Logic
 
         document.addEventListener('keydown', (e) => {
             if (!lightbox.classList.contains('active')) return;
@@ -904,6 +1137,24 @@
             }
 
             navigate();
+        });
+
+        // Onboarding Logic
+        window.addEventListener('DOMContentLoaded', () => {
+            if (!localStorage.getItem('onboarding_seen_v1')) {
+                const onboarding = document.getElementById('onboarding-overlay');
+                const closeBtn = document.getElementById('onboarding-close');
+                
+                // Show after a short delay so the page loads first
+                setTimeout(() => {
+                    onboarding.classList.add('active');
+                }, 1500);
+
+                closeBtn.addEventListener('click', () => {
+                    onboarding.classList.remove('active');
+                    localStorage.setItem('onboarding_seen_v1', 'true');
+                });
+            }
         });
     </script>
 </body>
