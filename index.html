@@ -863,7 +863,6 @@
             "optimized-media/IMG_20230902_113103-01.jpg",
             "optimized-media/IMG_20230902_114829.jpg",
             "optimized-media/IMG_20231018_075959-01.jpg",
-            "optimized-media/IMG_20231102_062411-01.jpg",
             "optimized-media/IMG_20231102_062429-01.jpg",
             "optimized-media/IMG_20231113_070644~2.jpg",
             "optimized-media/IMG_20231129_082346.jpg",
@@ -938,7 +937,6 @@
             "optimized-media/IMG_20260315_084634654.jpg",
             "optimized-media/IMG_20260316_200502636 (1).jpg",
             "optimized-media/IMG_20260321_151822043.jpg",
-            "optimized-media/IMG_20260321_151822420.jpg",
             "optimized-media/IMG_20260322_183325872.jpg",
             "optimized-media/IMG_20260322_183456083.jpg",
             "optimized-media/IMG_20260322_183608023.jpg",
@@ -1155,7 +1153,7 @@
             item.className = 'masonry-item';
 
             item.innerHTML = `
-                <img src="${src}" alt="Photography ${index + 1}" loading="lazy">
+                <img src="${src}" alt="Photography ${index + 1}" loading="lazy" onerror="this.parentElement.remove();">
             `;
 
             addDoubleClickListener(item,
