@@ -449,7 +449,11 @@
             font-weight: 600;
             background: linear-gradient(135deg, #fff 0%, #aaa 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
+            color: transparent;
+            display: inline-block;
+            transform: translateZ(0);
         }
 
         .onboarding-step {
@@ -1147,33 +1151,68 @@
             });
         }, observerOptions);
 
-        // Populate Gallery
-        images.forEach((src, index) => {
-            const item = document.createElement('div');
-            item.className = 'masonry-item';
+        // Infinite Scroll Implementation
+        let loadedCount = 0;
+        const batchSize = 15;
+        let isBatchLoading = false;
 
-            item.innerHTML = `
-                <img src="${src}" alt="Photography ${index + 1}" loading="lazy" onerror="this.parentElement.remove();">
-            `;
+        function loadNextBatch() {
+            if (isBatchLoading || loadedCount >= images.length) return;
+            isBatchLoading = true;
 
-            addDoubleClickListener(item,
-                // Single click
-                () => {
-                    currentIndex = index;
-                    showImage(currentIndex);
-                    lightbox.classList.add('active');
-                    document.body.style.overflow = 'hidden';
-                },
-                // Double click
-                (e) => {
-                    e.preventDefault();
-                    handleLikeAction(src, item);
-                }
-            );
+            const nextBatchEnd = Math.min(loadedCount + batchSize, images.length);
+            
+            for (let i = loadedCount; i < nextBatchEnd; i++) {
+                const src = images[i];
+                const index = i;
+                
+                const item = document.createElement('div');
+                item.className = 'masonry-item';
 
-            masonry.appendChild(item);
-            itemObserver.observe(item);
+                item.innerHTML = `
+                    <img src="${src}" alt="Photography ${index + 1}" loading="lazy" onerror="this.parentElement.remove();">
+                `;
+
+                addDoubleClickListener(item,
+                    // Single click
+                    () => {
+                        currentIndex = index;
+                        showImage(currentIndex);
+                        lightbox.classList.add('active');
+                        document.body.style.overflow = 'hidden';
+                    },
+                    // Double click
+                    (e) => {
+                        e.preventDefault();
+                        handleLikeAction(src, item);
+                    }
+                );
+
+                masonry.appendChild(item);
+                itemObserver.observe(item);
+            }
+            
+            loadedCount = nextBatchEnd;
+            isBatchLoading = false;
+        }
+
+        // Observer to trigger next batch when scrolling near the bottom
+        const infiniteScrollObserver = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                loadNextBatch();
+            }
+        }, {
+            rootMargin: '600px 0px', // Trigger 600px before reaching the bottom CTA
+            threshold: 0
         });
+
+        const bottomCta = document.querySelector('.bottom-portfolio-cta');
+        if (bottomCta) {
+            infiniteScrollObserver.observe(bottomCta);
+        }
+
+        // Initial Load
+        loadNextBatch();
 
         function showImage(index) {
             if (index < 0) {
@@ -1243,6 +1282,32 @@
                 showImage(currentIndex + 1);
             }
         });
+
+        // Touch Swipe functionality for mobile/tablet
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        lightbox.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, {passive: true});
+
+        lightbox.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, {passive: true});
+
+        function handleSwipe() {
+            if (!lightbox.classList.contains('active')) return;
+            const swipeThreshold = 50;
+            if (touchEndX < touchStartX - swipeThreshold) {
+                // Swiped left -> next image
+                showImage(currentIndex + 1);
+            }
+            if (touchEndX > touchStartX + swipeThreshold) {
+                // Swiped right -> prev image
+                showImage(currentIndex - 1);
+            }
+        }
 
         // Header scroll effect
         const header = document.getElementById('header');
