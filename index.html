@@ -633,6 +633,49 @@
             100% { transform: translateX(-20px); opacity: 0; }
         }
 
+        /* Swipe Guide in Lightbox */
+        .swipe-guide-overlay {
+            position: absolute;
+            inset: 0;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.4);
+            pointer-events: none;
+            z-index: 2020;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .swipe-guide-overlay.active {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .swipe-guide-overlay {
+                display: flex;
+            }
+        }
+
+        .swipe-guide-hand {
+            width: 100px;
+            height: 100px;
+            color: #fff;
+            animation: swipeFullGesture 3s infinite ease-in-out;
+            filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.8));
+        }
+
+        @keyframes swipeFullGesture {
+            0% { transform: translateX(60px) rotate(10deg); opacity: 0; }
+            10% { opacity: 1; }
+            45% { transform: translateX(-60px) rotate(-10deg); opacity: 1; }
+            50% { opacity: 0; }
+            55% { transform: translateX(-60px) rotate(-10deg); opacity: 0; }
+            65% { opacity: 1; }
+            90% { transform: translateX(60px) rotate(10deg); opacity: 1; }
+            100% { transform: translateX(60px) rotate(10deg); opacity: 0; }
+        }
+
         /* Footer */
         footer {
             padding: 3rem 5%;
@@ -747,6 +790,16 @@
         <div class="lightbox-nav lightbox-prev" id="lightbox-prev">&#10094;</div>
         <img src="" alt="Enlarged Photo" id="lightbox-img">
         <div class="lightbox-nav lightbox-next" id="lightbox-next">&#10095;</div>
+        
+        <!-- Swipe Guide Overlay -->
+        <div class="swipe-guide-overlay" id="swipe-guide">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="swipe-guide-hand">
+                <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path>
+                <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path>
+                <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path>
+                <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"></path>
+            </svg>
+        </div>
     </div>
 
     <!-- Onboarding Modal -->
@@ -769,17 +822,6 @@
                     </path>
                 </svg>
                 <span><strong>Double Tap</strong> to Like</span>
-            </div>
-            <div class="onboarding-step mobile-only-instruction">
-                <div class="swipe-animation">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="swipe-hand">
-                        <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path>
-                        <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path>
-                        <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path>
-                        <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"></path>
-                    </svg>
-                </div>
-                <span><strong>Swipe</strong> to Navigate</span>
             </div>
             <button class="onboarding-btn" id="onboarding-close">Got it</button>
         </div>
@@ -1223,6 +1265,17 @@
                         showImage(currentIndex);
                         lightbox.classList.add('active');
                         document.body.style.overflow = 'hidden';
+
+                        // Show Swipe Guide first time only on mobile
+                        if (!localStorage.getItem('swipe_guide_seen') && window.innerWidth <= 768) {
+                            const guide = document.getElementById('swipe-guide');
+                            guide.classList.add('active');
+                            // Hide after 4 seconds or when user interacts
+                            setTimeout(() => {
+                                guide.classList.remove('active');
+                                localStorage.setItem('swipe_guide_seen', 'true');
+                            }, 4000);
+                        }
                     },
                     // Double click
                     (e) => {
@@ -1341,6 +1394,14 @@
 
         function handleSwipe() {
             if (!lightbox.classList.contains('active')) return;
+            
+            // Immediately hide guide if they start swiping
+            const guide = document.getElementById('swipe-guide');
+            if (guide.classList.contains('active')) {
+                guide.classList.remove('active');
+                localStorage.setItem('swipe_guide_seen', 'true');
+            }
+
             const swipeThreshold = 50;
             if (touchEndX < touchStartX - swipeThreshold) {
                 // Swiped left -> next image
