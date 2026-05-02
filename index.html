@@ -590,9 +590,7 @@
 
         @media (max-width: 768px) {
             .lightbox-nav {
-                width: 40px;
-                height: 40px;
-                font-size: 1.5rem;
+                display: none; /* Hide arrows on mobile */
             }
 
             .lightbox-prev {
@@ -610,6 +608,29 @@
                 height: 40px;
                 font-size: 1.5rem;
             }
+        }
+
+        /* Swipe Animation for Onboarding */
+        .swipe-animation {
+            width: 40px;
+            height: 40px;
+            position: relative;
+            margin: 0 auto 10px;
+        }
+
+        .swipe-hand {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            animation: swipeHand 2s infinite ease-in-out;
+            color: #fff;
+        }
+
+        @keyframes swipeHand {
+            0% { transform: translateX(20px); opacity: 0; }
+            20% { opacity: 1; }
+            80% { transform: translateX(-20px); opacity: 1; }
+            100% { transform: translateX(-20px); opacity: 0; }
         }
 
         /* Footer */
@@ -662,6 +683,17 @@
                 height: 50px;
                 background-color: rgba(255, 255, 255, 0.1);
                 border-color: rgba(255, 255, 255, 0.8);
+            }
+        }
+
+        /* Mobile only instruction visibility */
+        .mobile-only-instruction {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-only-instruction {
+                display: flex;
             }
         }
     </style>
@@ -737,6 +769,17 @@
                     </path>
                 </svg>
                 <span><strong>Double Tap</strong> to Like</span>
+            </div>
+            <div class="onboarding-step mobile-only-instruction">
+                <div class="swipe-animation">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="swipe-hand">
+                        <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path>
+                        <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path>
+                        <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path>
+                        <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"></path>
+                    </svg>
+                </div>
+                <span><strong>Swipe</strong> to Navigate</span>
             </div>
             <button class="onboarding-btn" id="onboarding-close">Got it</button>
         </div>
@@ -1358,7 +1401,7 @@
 
         // Onboarding Logic
         window.addEventListener('DOMContentLoaded', () => {
-            if (!localStorage.getItem('onboarding_seen_v1')) {
+            if (!localStorage.getItem('onboarding_seen_v2')) {
                 const onboarding = document.getElementById('onboarding-overlay');
                 const closeBtn = document.getElementById('onboarding-close');
 
@@ -1369,7 +1412,7 @@
 
                 closeBtn.addEventListener('click', () => {
                     onboarding.classList.remove('active');
-                    localStorage.setItem('onboarding_seen_v1', 'true');
+                    localStorage.setItem('onboarding_seen_v2', 'true');
                 });
             }
         });
