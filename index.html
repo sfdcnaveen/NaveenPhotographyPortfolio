@@ -266,26 +266,15 @@
             overflow: hidden;
             cursor: pointer;
             background: #111;
-        }
-
-        .masonry-item.loading {
-            background: linear-gradient(110deg, #1a1a1a 8%, #252525 18%, #1a1a1a 33%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite linear;
-        }
-
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-
-        .masonry-item img {
             opacity: 0;
-            transition: opacity 0.4s ease;
+            transform: translateY(40px) scale(0.98);
+            transition: opacity 0.8s cubic-bezier(0.215, 0.61, 0.355, 1), transform 0.8s cubic-bezier(0.215, 0.61, 0.355, 1), box-shadow 0.6s ease;
+            will-change: opacity, transform;
         }
 
-        .masonry-item img.loaded {
+        .masonry-item.in-view {
             opacity: 1;
+            transform: translateY(0) scale(1);
         }
 
         .masonry-item:hover {
@@ -300,11 +289,7 @@
             will-change: transform;
         }
 
-        .masonry-item:hover {
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-        }
-
-        .masonry-item:hover img.loaded {
+        .masonry-item:hover img {
             transform: scale(1.05);
             filter: brightness(0.8);
         }
@@ -1236,40 +1221,20 @@
             setTimeout(() => container.remove(), 1000);
         }
 
-        // DOM cleanup for off-screen images (Memory optimization)
-        const cleanupOptions = {
+        // Intersection Observer for Masonry Items (Scroll Reveal)
+        const observerOptions = {
             root: null,
-            rootMargin: '400px',
-            threshold: 0
+            rootMargin: '0px 0px -50px 0px',
+            threshold: 0.1
         };
-        const cleanupObserver = new IntersectionObserver((entries) => {
+        const itemObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
-                if (!entry.isIntersecting && entry.target.parentElement) {
-                    const img = entry.target.querySelector('img');
-                    if (img) {
-                        img.src = '';
-                        img.srcset = '';
-                    }
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('in-view');
+                    observer.unobserve(entry.target);
                 }
             });
-        }, cleanupOptions);
-
-        // Progressive loading handler
-        function handleImageLoad(img, item) {
-            item.classList.remove('loading');
-            img.classList.add('loaded');
-        }
-
-        function handleImageError(img, item, src, retryCount = 0) {
-            if (retryCount < 2) {
-                setTimeout(() => {
-                    img.src = src;
-                    img.onerror = () => handleImageError(img, item, src, retryCount + 1);
-                }, 1000 * (retryCount + 1));
-            } else {
-                item.remove();
-            }
-        }
+        }, observerOptions);
 
         // Infinite Scroll Implementation
         let loadedCount = 0;
@@ -1287,19 +1252,11 @@
                 const index = i;
                 
                 const item = document.createElement('div');
-                item.className = 'masonry-item loading';
-                item.dataset.index = index;
+                item.className = 'masonry-item';
 
-                const img = document.createElement('img');
-                img.alt = `Photography ${index + 1}`;
-                img.loading = 'lazy';
-                
-                img.onload = () => handleImageLoad(img, item);
-                img.onerror = () => handleImageError(img, item, src, 0);
-                img.src = src;
-
-                item.appendChild(img);
-                cleanupObserver.observe(item);
+                item.innerHTML = `
+                    <img src="${src}" alt="Photography ${index + 1}" loading="lazy" onerror="this.parentElement.remove();">
+                `;
 
                 addDoubleClickListener(item,
                     // Single click
@@ -1328,6 +1285,7 @@
                 );
 
                 masonry.appendChild(item);
+                itemObserver.observe(item);
             }
             
             loadedCount = nextBatchEnd;
