@@ -6,6 +6,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Naveen | Mobile Photography</title>
     <meta name="description" content="A curated collection of mobile photography by Naveen.">
+    
+    <!-- Open Graph / Social Media Meta Tags -->
+    <meta property="og:title" content="Naveen | Mobile Photography">
+    <meta property="og:description" content="A curated collection of mobile photography by Naveen.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Naveen | Mobile Photography">
+    <meta name="twitter:description" content="A curated collection of mobile photography by Naveen.">
+
+    <!-- Structured Data for Generative AI / Search Engines -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Naveen Mobile Photography",
+      "author": {
+        "@type": "Person",
+        "name": "Naveen"
+      },
+      "description": "A curated collection of mobile photography by Naveen."
+    }
+    </script>
+
     <link rel="icon" type="image/png" href="favicon.png">
 
     <!-- Google tag (gtag.js) -->
@@ -138,15 +161,18 @@
             margin-bottom: 4rem;
         }
 
+        .poetic-text h1,
         .poetic-text p {
             margin: 0;
             opacity: 0;
             transform: translateY(20px);
             animation: fadeUp 1s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
             transition: text-shadow 0.3s ease;
+            font-size: 1.35rem;
+            font-weight: 400;
         }
 
-        .poetic-text p:nth-child(1) {
+        .poetic-text h1 {
             animation-delay: 0.2s;
         }
 
@@ -169,6 +195,7 @@
             }
         }
 
+        .poetic-text h1:hover,
         .poetic-text p:hover {
             opacity: 1 !important;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
@@ -759,7 +786,7 @@
 
     <section class="hero" id="about">
         <div class="poetic-text">
-            <p>I never planned to capture the world.<br>I just didn’t want to miss it.</p>
+            <h1>I never planned to capture the world.<br>I just didn’t want to miss it.</h1>
             <p>So whenever something feels a little more alive—<br>a color, a shadow, a passing face—<br>I pause,<br>and
                 I keep it.</p>
             <p>Not for anyone else,<br>not for perfection,<br>just for the simple joy of holding onto a moment<br>that
@@ -1255,7 +1282,7 @@
                 item.className = 'masonry-item';
 
                 item.innerHTML = `
-                    <img src="${src}" alt="Photography ${index + 1}" loading="lazy" onerror="this.parentElement.remove();">
+                    <img src="${src}" alt="Mobile photography by Naveen - Collection Image ${index + 1}" loading="lazy" onerror="this.parentElement.remove();">
                 `;
 
                 addDoubleClickListener(item,
